@@ -14,40 +14,32 @@ public class UserDaoJDBCImpl implements UserDao {
     }
 
     public void createUsersTable() {
-        try {
+        try (
             PreparedStatement preparedStatement =
-                    connection.prepareStatement("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTO_INCREMENT , name VARCHAR(45), lastname VARCHAR(45), age INT (3))");
+                    connection.prepareStatement("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY AUTO_INCREMENT , name VARCHAR(45), lastname VARCHAR(45), age INT (3))")) {
             preparedStatement.executeUpdate();
 
         } catch (SQLException throwables) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+
+            throwables.printStackTrace();
             }
         }
-    }
 
     public void dropUsersTable() {
-        PreparedStatement preparedStatement = null;
-        try {
-            preparedStatement = connection.prepareStatement("DROP TABLE IF EXISTS users");
+        try (
+                PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE IF EXISTS users")) {
             preparedStatement.executeUpdate();
         } catch (SQLException throwables) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            throwables.printStackTrace();
             }
         }
-    }
+
 
     public void saveUser(String name, String lastName, byte age) {
-        try {
-            connection.setAutoCommit(false);
+
             String sql = "INSERT INTO users (name, lastname, age) VALUES (?,?,?)";
-            try {
-                PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            try (
+                PreparedStatement preparedStatement = connection.prepareStatement(sql)) {
                 preparedStatement.setString(1, name);
                 preparedStatement.setString(2, lastName);
                 preparedStatement.setByte(3, age);
@@ -55,35 +47,22 @@ public class UserDaoJDBCImpl implements UserDao {
                 connection.commit();
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
-                connection.rollback();
-            } finally {
-                connection.setAutoCommit(true);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
     }
 
     public void removeUserById(long id) {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id=?");
+        try (
+            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE id=?")) {
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
 
         } catch (SQLException throwables) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            throwables.printStackTrace();
             }
         }
-    }
 
     public List<User> getAllUsers() {
         List<User> userList = new ArrayList<>();
-
-        try {
-            connection.setAutoCommit(false);
             try (Statement statement = connection.createStatement()) {
                 ResultSet resultSet = statement.executeQuery("SELECT * FROM users");
                 while (resultSet.next()) {
@@ -97,27 +76,17 @@ public class UserDaoJDBCImpl implements UserDao {
                 }
             } catch (SQLException throwables) {
                 throwables.printStackTrace();
-                connection.rollback();
-            } finally {
-                connection.setAutoCommit(true);
-            }
-
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
         }
         return userList;
     }
 
     public void cleanUsersTable() {
-        try {
-            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users ");
+        try (
+            PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users ")) {
             preparedStatement.executeUpdate();
         } catch (SQLException throwables) {
-            try {
-                connection.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+
+            throwables.printStackTrace();
             }
         }
     }
-}

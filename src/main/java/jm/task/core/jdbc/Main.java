@@ -21,6 +21,7 @@ public class Main {
         System.out.println(user.getAllUsers());
         user.cleanUsersTable();
         user.dropUsersTable();
+        util.closeConnection();
 
 
 
